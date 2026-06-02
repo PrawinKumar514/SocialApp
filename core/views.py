@@ -3,14 +3,22 @@ from django.contrib.auth.models import User
 from rest_framework import viewsets
 from rest_framework.response import Response
 
-from .models import Profile, Post, Comment, Follow, Like
+from .models import (
+    Profile,
+    Post,
+    Comment,
+    Follow,
+    Like,
+    Notification
+)
 
 from .serializers import (
     ProfileSerializer,
     PostSerializer,
     CommentSerializer,
     FollowSerializer,
-    LikeSerializer
+    LikeSerializer,
+    NotificationSerializer
 )
 
 
@@ -86,10 +94,17 @@ class CommentViewSet(viewsets.ModelViewSet):
         serializer.is_valid(
             raise_exception=True
         )
-
-        serializer.save(
+        
+        comment = serializer.save(
             user=User.objects.get(id=user_id)
         )
+
+        if comment.post.user != comment.user:
+
+            Notification.objects.create(
+                user=comment.post.user,
+                message=f"{comment.user.username} commented on your post"
+            )
 
         return Response(serializer.data)
 
@@ -119,11 +134,22 @@ class FollowViewSet(viewsets.ModelViewSet):
             return Response({
                 "message": "Unfollowed"
             })
-
+        
         Follow.objects.create(
             follower=user,
             following_id=following_id
         )
+
+        followed_user = User.objects.get(
+            id=following_id
+        )
+
+        if followed_user != user:
+
+            Notification.objects.create(
+                user=followed_user,
+                message=f"{user.username} started following you"
+            )
 
         return Response({
             "message": "Followed"
@@ -155,12 +181,37 @@ class LikeViewSet(viewsets.ModelViewSet):
             return Response({
                 "message": "Unliked"
             })
-
-        Like.objects.create(
+        
+        new_like = Like.objects.create(
             user=user,
             post_id=post_id
         )
 
+        post = Post.objects.get(id=post_id)
+
+        if post.user != user:
+
+            Notification.objects.create(
+                user=post.user,
+                message=f"{user.username} liked your post"
+            )
+
         return Response({
             "message": "Liked"
         })
+
+class NotificationViewSet(viewsets.ModelViewSet):
+
+    serializer_class = NotificationSerializer
+
+    def get_queryset(self):
+
+        user_id = self.request.GET.get('user_id')
+
+        if user_id:
+
+            return Notification.objects.filter(
+                user_id=user_id
+            ).order_by('-created_at')
+
+        return Notification.objects.none()

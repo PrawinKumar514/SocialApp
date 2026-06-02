@@ -1,6 +1,6 @@
 from rest_framework import serializers
 from django.contrib.auth.models import User
-from .models import Profile, Post, Comment, Follow, Like
+from .models import Profile, Post, Comment, Follow, Like, Notification
 
 
 class UserSerializer(serializers.ModelSerializer):
@@ -101,4 +101,10 @@ class FollowSerializer(serializers.ModelSerializer):
 class LikeSerializer(serializers.ModelSerializer):
     class Meta:
         model = Like
+        fields = '__all__'
+
+class NotificationSerializer(serializers.ModelSerializer):
+
+    class Meta:
+        model = Notification
         fields = '__all__'

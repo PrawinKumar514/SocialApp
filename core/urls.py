@@ -8,7 +8,8 @@ from .views import (
     PostViewSet,
     CommentViewSet,
     FollowViewSet,
-    LikeViewSet
+    LikeViewSet,
+    NotificationViewSet
 )
 
 router = DefaultRouter()
@@ -19,6 +20,12 @@ router.register(r'posts', PostViewSet)
 router.register(r'comments', CommentViewSet)
 router.register(r'follows', FollowViewSet)
 router.register(r'likes', LikeViewSet)
+
+router.register(
+    r'notifications',
+    NotificationViewSet,
+    basename='notification'
+)
 
 urlpatterns = [
 
