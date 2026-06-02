@@ -13,10 +13,55 @@
         <div class="nav-container">
             <h1>SocialApp</h1>
 
-            <div class="user-info">
-                <span id="username"></span>
-                <button id="logout">Logout</button>
-            </div>
+        <div class="user-info">
+
+            <div style="position:relative; display:inline-block;">
+
+    <button id="notificationBtn">
+        🔔
+    </button>
+
+    <div
+        id="notificationContainer"
+        style="
+            display:none;
+            position:absolute;
+            top:45px;
+            right:0;
+            width:280px;
+            background:white;
+            border:1px solid #ddd;
+            border-radius:10px;
+            box-shadow:0 2px 10px rgba(0,0,0,0.2);
+            z-index:1000;
+            max-height:300px;
+            overflow-y:auto;
+        "
+    >
+
+        <div
+            style="
+                padding:10px;
+                font-weight:bold;
+                border-bottom:1px solid #ddd;
+            "
+        >
+            Notifications
+        </div>
+
+        <div id="notificationList"></div>
+
+    </div>
+
+</div>
+
+    <span id="username"></span>
+
+    <button id="logout">
+        Logout
+    </button>
+
+</div>
         </div>
     </nav>
 

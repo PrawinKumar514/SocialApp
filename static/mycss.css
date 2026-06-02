@@ -253,3 +253,26 @@ textarea{
         font-size:28px;
     }
 }
+
+#notificationContainer{
+    position:absolute;
+    top:65px;
+    right:0;
+    width:280px;
+    background:white;
+    border-radius:10px;
+    box-shadow:0 5px 20px rgba(0,0,0,0.15);
+    z-index:9999;
+    display:none;
+    max-height:300px;
+    overflow-y:auto;
+}
+
+#notificationList div{
+    padding:10px;
+    border-bottom:1px solid #ddd;
+}
+
+#notificationList div:hover{
+    background:#f5f5f5;
+}

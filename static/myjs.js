@@ -22,6 +22,9 @@ document.addEventListener('DOMContentLoaded', () => {
     document.getElementById('uploadPicBtn')
         .addEventListener('click', uploadProfilePicture);
 
+    document.getElementById('notificationBtn')
+    .addEventListener('click', loadNotifications);
+
     // AUTO LOGIN AFTER REFRESH
 
     if (localStorage.getItem('user_id')) {
@@ -875,4 +878,50 @@ function closeProfile() {
     document.getElementById(
         'profileModal'
     ).style.display = 'none';
+}
+
+async function loadNotifications() {
+
+    const userId =
+        localStorage.getItem('user_id');
+
+    const response = await fetch(
+        `${API_BASE}/notifications/?user_id=${userId}`
+    );
+
+    const notifications =
+        await response.json();
+
+    const container =
+        document.getElementById(
+            'notificationContainer'
+        );
+
+    const list =
+        document.getElementById(
+            'notificationList'
+        );
+
+    list.innerHTML = '';
+
+    notifications.forEach(notification => {
+
+        console.log(notification);
+
+        const item = document.createElement("div");
+
+item.style.padding = "12px 15px";
+item.style.color = "#222";
+item.style.borderBottom = "1px solid #ddd";
+
+item.textContent = "🔔 " + notification.message;
+
+list.appendChild(item);
+
+    });
+
+    container.style.display =
+    container.style.display === 'block'
+        ? 'none'
+        : 'block';
 }
