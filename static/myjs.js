@@ -235,7 +235,7 @@ async function loadFeed() {
         onclick="viewUserProfile(${post.user.id})"
         style="
             text-decoration:none;
-            color:black;
+            color:inherit;
         "
     >
         ${post.user.username}
@@ -261,19 +261,18 @@ async function loadFeed() {
                 <p>${post.content}</p>
 
                 ${post.image ? `
-                    <img
-    src="${post.image}"
-    onclick="openImage('${post.image}')"
-    style="
-        width:120px;
-        height:120px;
-        object-fit:cover;
-        border-radius:10px;
-        cursor:pointer;
-    "
->
-                ` : ''}
-
+    <img
+        src="${post.image}"
+        onclick="openImage('${post.image}')"
+        style="
+            width:180px;
+            height:180px;
+            object-fit:cover;
+            border-radius:10px;
+            cursor:pointer;
+        "
+    >
+` : ""}
                 <small>${post.created_at}</small>
 
                 <br><br>
@@ -331,15 +330,11 @@ async function loadFeed() {
                     <hr>
 
                     ${post.comments.map(comment => `
-                        <div style="
-                            margin-bottom:8px;
-                            padding:5px;
-                            background:#f5f5f5;
-                        ">
-                            <b>${comment.user.username}</b>:
-                            ${comment.content}
-                        </div>
-                    `).join('')}
+    <div class="comment-box">
+        <b>${comment.user.username}</b>:
+        ${comment.content}
+    </div>
+`).join('')}
 
                 </div>
 
@@ -675,12 +670,7 @@ function searchPosts() {
     filteredPosts.forEach(post => {
 
         feed.innerHTML += `
-            <div style="
-                background:white;
-                padding:15px;
-                margin:10px;
-                border-radius:8px;
-            ">
+    <div class="post-card">
                 <h3>${post.user.username}</h3>
 
                 <p>${post.content}</p>
@@ -1059,7 +1049,7 @@ ${
     .map(post => `
         <div
             style="
-                background:#f5f5f5;
+                background:var(--post-bg, #f5f5f5);
                 padding:10px;
                 border-radius:8px;
                 margin-bottom:10px;
@@ -1120,3 +1110,54 @@ function openImage(imageUrl){
 
     document.body.appendChild(modal);
 }
+
+// =========================
+// DARK MODE
+// =========================
+
+const themeBtn =
+document.getElementById(
+    "themeToggleBtn"
+);
+
+if(localStorage.getItem("theme") === "dark"){
+
+    document.body.classList.add(
+        "dark-mode"
+    );
+
+    themeBtn.innerHTML = "☀️";
+}
+
+themeBtn.addEventListener(
+    "click",
+    () => {
+
+        document.body.classList.toggle(
+            "dark-mode"
+        );
+
+        if(
+            document.body.classList.contains(
+                "dark-mode"
+            )
+        ){
+
+            localStorage.setItem(
+                "theme",
+                "dark"
+            );
+
+            themeBtn.innerHTML = "☀️";
+
+        }else{
+
+            localStorage.setItem(
+                "theme",
+                "light"
+            );
+
+            themeBtn.innerHTML = "🌙";
+        }
+    }
+);
