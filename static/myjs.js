@@ -2,6 +2,23 @@ const API_BASE = 'http://127.0.0.1:8000/api';
 
 let allPosts = [];
 
+function formatDate(dateString){
+
+    const date = new Date(dateString);
+
+    return date.toLocaleString(
+        "en-IN",
+        {
+            day: "numeric",
+            month: "long",
+            year: "numeric",
+            hour: "numeric",
+            minute: "2-digit",
+            hour12: true
+        }
+    );
+}
+
 document.addEventListener('DOMContentLoaded', () => {
 
     document.getElementById('registerBtn')
@@ -273,7 +290,7 @@ async function loadFeed() {
         "
     >
 ` : ""}
-                <small>${post.created_at}</small>
+                <small>${formatDate(post.created_at)}</small>
 
                 <br><br>
 
@@ -675,7 +692,7 @@ function searchPosts() {
 
                 <p>${post.content}</p>
 
-                <small>${post.created_at}</small>
+                <small>${formatDate(post.created_at)}</small>
             </div>
         `;
     });
