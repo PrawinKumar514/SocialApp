@@ -9,7 +9,11 @@ from .views import (
     CommentViewSet,
     FollowViewSet,
     LikeViewSet,
-    NotificationViewSet
+    NotificationViewSet,
+    unread_notification_count,
+    mark_notifications_read,
+    user_profile,
+    user_posts
 )
 
 router = DefaultRouter()
@@ -31,6 +35,26 @@ urlpatterns = [
 
     path('api/register/', register),
     path('api/login/', login),
+
+    path(
+        'api/notifications/count/',
+        unread_notification_count
+    ),
+
+    path(
+        'api/notifications/read/',
+        mark_notifications_read
+    ),
+
+    path(
+    'api/profile/<int:user_id>/',
+    user_profile
+    ),
+
+    path(
+    'api/user-posts/<int:user_id>/',
+    user_posts
+    ),
 
     path('', home, name='home'),
 

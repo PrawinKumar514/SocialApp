@@ -1,3 +1,4 @@
+from rest_framework.decorators import api_view
 from django.shortcuts import render
 from django.contrib.auth.models import User
 from rest_framework import viewsets
@@ -215,3 +216,84 @@ class NotificationViewSet(viewsets.ModelViewSet):
             ).order_by('-created_at')
 
         return Notification.objects.none()
+    
+@api_view(['GET'])
+def unread_notification_count(request):
+
+    user_id = request.GET.get('user_id')
+
+    count = Notification.objects.filter(
+        user_id=user_id,
+        is_read=False
+    ).count()
+
+    return Response({
+        "count": count
+    })
+
+@api_view(['POST'])
+def mark_notifications_read(request):
+
+    user_id = request.data.get('user_id')
+
+    Notification.objects.filter(
+        user_id=user_id,
+        is_read=False
+    ).update(
+        is_read=True
+    )
+
+    return Response({
+        "message": "Notifications marked read"
+    })
+
+@api_view(['GET'])
+def user_profile(request, user_id):
+
+    try:
+
+        user = User.objects.get(id=user_id)
+
+        profile = Profile.objects.get(user=user)
+
+        posts = Post.objects.filter(user=user)
+
+        return Response({
+    "id": user.id,
+    "username": user.username,
+    "bio": profile.bio,
+    "followers": Follow.objects.filter(
+        following=user
+    ).count(),
+    "following": Follow.objects.filter(
+        follower=user
+    ).count(),
+    "posts_count": posts.count(),
+
+    "profile_picture":
+        profile.profile_picture.url
+        if profile.profile_picture
+        else ""
+        })
+
+    except User.DoesNotExist:
+
+        return Response(
+            {"error": "User not found"},
+            status=404
+        )
+    
+@api_view(['GET'])
+def user_posts(request, user_id):
+
+    posts = Post.objects.filter(
+        user_id=user_id
+    ).order_by('-id')
+
+    serializer = PostSerializer(
+        posts,
+        many=True,
+        context={'request': request}
+    )
+
+    return Response(serializer.data)

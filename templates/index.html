@@ -17,9 +17,15 @@
 
             <div style="position:relative; display:inline-block;">
 
-    <button id="notificationBtn">
-        🔔
-    </button>
+                <button id="notificationBtn">
+
+    🔔
+
+    <span id="notificationCount">
+        0
+    </span>
+
+</button>
 
     <div
         id="notificationContainer"
@@ -224,6 +230,16 @@
 </div>
 
 <script src="{% static 'myjs.js' %}"></script>
+
+<!-- User Profile Modal -->
+
+<div id="userProfileModal">
+
+    <div id="userProfileContent">
+
+    </div>
+
+</div>
 
 </body>
 </html>

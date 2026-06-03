@@ -46,6 +46,7 @@ document.addEventListener('DOMContentLoaded', () => {
         loadFeed();
         loadProfile();
         loadProfilePicture();
+        loadNotificationCount();
 
     }
 
@@ -139,6 +140,7 @@ document.getElementById('profileBio')
         loadFeed();
         loadProfile();
         loadProfilePicture();
+        loadNotificationCount();
 
         alert('Login successful!');
 
@@ -230,7 +232,7 @@ async function loadFeed() {
 
     <a
         href="javascript:void(0)"
-        onclick="viewProfile(${post.user.id})"
+        onclick="viewUserProfile(${post.user.id})"
         style="
             text-decoration:none;
             color:black;
@@ -260,15 +262,16 @@ async function loadFeed() {
 
                 ${post.image ? `
                     <img
-                        src="${post.image}"
-                        style="
-                            max-width:350px;
-                            width:100%;
-                            border-radius:10px;
-                            margin-top:10px;
-                            margin-bottom:10px;
-                        "
-                    >
+    src="${post.image}"
+    onclick="openImage('${post.image}')"
+    style="
+        width:120px;
+        height:120px;
+        object-fit:cover;
+        border-radius:10px;
+        cursor:pointer;
+    "
+>
                 ` : ''}
 
                 <small>${post.created_at}</small>
@@ -892,6 +895,21 @@ async function loadNotifications() {
     const notifications =
         await response.json();
 
+        await fetch(
+    `${API_BASE}/notifications/read/`,
+    {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json'
+        },
+        body: JSON.stringify({
+            user_id: userId
+        })
+    }
+);
+
+loadNotificationCount();
+
     const container =
         document.getElementById(
             'notificationContainer'
@@ -924,4 +942,181 @@ list.appendChild(item);
     container.style.display === 'block'
         ? 'none'
         : 'block';
+}
+
+async function loadNotificationCount() {
+
+    const userId =
+        localStorage.getItem('user_id');
+
+    if (!userId) return;
+
+    const response = await fetch(
+        `${API_BASE}/notifications/count/?user_id=${userId}`
+    );
+
+    const data =
+        await response.json();
+
+    document.getElementById(
+        'notificationCount'
+    ).innerText = data.count;
+}
+
+async function viewUserProfile(userId){
+
+    const response =
+        await fetch(`${API_BASE}/profile/${userId}/`);
+
+    const user =
+        await response.json();
+
+    const postsResponse =
+    await fetch(
+        `${API_BASE}/user-posts/${userId}/`
+    );
+    
+    const userPosts =
+    await postsResponse.json();
+
+    const modal =
+        document.getElementById("userProfileModal");
+
+    const content =
+        document.getElementById("userProfileContent");
+
+    content.innerHTML = `
+
+<div style="text-align:center">
+
+    <img
+        src="http://127.0.0.1:8000${user.profile_picture}"
+        style="
+            width:120px;
+            height:120px;
+            border-radius:50%;
+            object-fit:cover;
+            border:4px solid #4267B2;
+            margin-bottom:15px;
+        "
+    >
+
+    <h2>${user.username}</h2>
+
+</div>
+
+<hr>
+
+<p><strong>Bio:</strong> ${user.bio}</p>
+
+<p><strong>Followers:</strong> ${user.followers}</p>
+
+<p><strong>Following:</strong> ${user.following}</p>
+
+<p><strong>Posts:</strong> ${user.posts_count}</p>
+
+<hr>
+
+<h3>Recent Photos</h3>
+
+<div
+style="
+display:flex;
+flex-wrap:wrap;
+gap:10px;
+margin-bottom:15px;
+">
+
+${userPosts
+    .filter(post => post.image)
+    .map(post => `
+        <img
+            src="${post.image}"
+            onclick="openImage('${post.image}')"
+            style="
+                width:120px;
+                height:120px;
+                object-fit:cover;
+                border-radius:10px;
+                cursor:pointer;
+            "
+        >
+    `)
+    .join('')
+}
+
+</div>
+
+<hr>
+
+<h3 style="margin-top:15px;">
+    Recent Posts
+</h3>
+
+${
+    userPosts
+    .filter(post => post.content && post.content.trim() !== "")
+    .map(post => `
+        <div
+            style="
+                background:#f5f5f5;
+                padding:10px;
+                border-radius:8px;
+                margin-bottom:10px;
+            "
+        >
+            ${post.content}
+        </div>
+    `).join('')
+    ||
+    '<p>No posts yet</p>'
+}
+
+<br>
+
+<button onclick="closeProfileModal()">
+    Close
+</button>
+
+`;
+
+    modal.style.display = "flex";
+}
+
+function closeProfileModal(){
+
+    document.getElementById(
+        "userProfileModal"
+    ).style.display = "none";
+}
+
+function openImage(imageUrl){
+
+    const modal = document.createElement("div");
+
+    modal.style.position = "fixed";
+    modal.style.top = "0";
+    modal.style.left = "0";
+    modal.style.width = "100%";
+    modal.style.height = "100%";
+    modal.style.background = "rgba(0,0,0,0.9)";
+    modal.style.display = "flex";
+    modal.style.alignItems = "center";
+    modal.style.justifyContent = "center";
+    modal.style.zIndex = "99999";
+
+    modal.innerHTML = `
+        <img
+            src="${imageUrl}"
+            style="
+                max-width:90%;
+                max-height:90%;
+                border-radius:10px;
+            "
+        >
+    `;
+
+    modal.onclick = () => modal.remove();
+
+    document.body.appendChild(modal);
 }
