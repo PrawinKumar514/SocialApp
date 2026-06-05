@@ -8,9 +8,10 @@ from .models import (
     Profile,
     Post,
     Comment,
-    Follow,
     Like,
-    Notification
+    Follow,
+    Notification,
+    SavedPost
 )
 
 from .serializers import (
@@ -297,3 +298,32 @@ def user_posts(request, user_id):
     )
 
     return Response(serializer.data)
+
+@api_view(["POST"])
+def toggle_save_post(request):
+
+    user_id = request.data.get("user_id")
+    post_id = request.data.get("post_id")
+
+    try:
+        saved = SavedPost.objects.get(
+            user_id=user_id,
+            post_id=post_id
+        )
+
+        saved.delete()
+
+        return Response({
+            "saved": False
+        })
+
+    except SavedPost.DoesNotExist:
+
+        SavedPost.objects.create(
+            user_id=user_id,
+            post_id=post_id
+        )
+
+        return Response({
+            "saved": True
+        })

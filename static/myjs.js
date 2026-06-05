@@ -30,6 +30,12 @@ document.addEventListener('DOMContentLoaded', () => {
     document.getElementById('createPostBtn')
         .addEventListener('click', createPost);
 
+    document.getElementById('postImage')
+    .addEventListener(
+        'change',
+        previewImage
+    );
+
     document.getElementById('logout')
         .addEventListener('click', logoutUser);
 
@@ -298,6 +304,17 @@ async function loadFeed() {
                     ❤️ Like / Unlike
                 </button>
 
+                <button
+    onclick="savePost(${post.id})"
+    style="
+        margin-left:10px;
+        background:#007bff;
+        color:white;
+    "
+>
+    🔖 Save
+</button>
+
                 ${parseInt(localStorage.getItem('user_id')) === post.user.id ? `
                     <button
                         onclick="editPost(${post.id}, '${post.content}')"
@@ -409,6 +426,14 @@ async function createPost() {
     document.getElementById(
         'postImage'
     ).value = '';
+
+    document.getElementById(
+    'imagePreview'
+).src = '';
+
+document.getElementById(
+    'imagePreview'
+).style.display = 'none';
 
     const scrollPos = window.scrollY;
 
@@ -1126,6 +1151,59 @@ function openImage(imageUrl){
     modal.onclick = () => modal.remove();
 
     document.body.appendChild(modal);
+}
+
+function previewImage(){
+
+    const file =
+        document.getElementById(
+            'postImage'
+        ).files[0];
+
+    const preview =
+        document.getElementById(
+            'imagePreview'
+        );
+
+    if(!file){
+
+        preview.style.display = "none";
+        return;
+    }
+
+    preview.src =
+        URL.createObjectURL(file);
+
+    preview.style.display =
+        "block";
+}
+
+async function savePost(postId){
+
+    const response = await fetch(
+        `${API_BASE}/save-post/`,
+        {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify({
+                user_id: localStorage.getItem('user_id'),
+                post_id: postId
+            })
+        }
+    );
+
+    const data = await response.json();
+
+    if(data.saved){
+
+        alert("Post saved");
+
+    }else{
+
+        alert("Post removed from saved posts");
+    }
 }
 
 // =========================

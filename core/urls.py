@@ -13,7 +13,8 @@ from .views import (
     unread_notification_count,
     mark_notifications_read,
     user_profile,
-    user_posts
+    user_posts,
+    toggle_save_post
 )
 
 router = DefaultRouter()
@@ -47,13 +48,18 @@ urlpatterns = [
     ),
 
     path(
-    'api/profile/<int:user_id>/',
-    user_profile
+        'api/profile/<int:user_id>/',
+        user_profile
     ),
 
     path(
-    'api/user-posts/<int:user_id>/',
-    user_posts
+        'api/user-posts/<int:user_id>/',
+        user_posts
+    ),
+
+    path(
+        'api/save-post/',
+        toggle_save_post
     ),
 
     path('', home, name='home'),
