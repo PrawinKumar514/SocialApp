@@ -550,3 +550,134 @@ body.dark-mode button{
     min-width:50px;
     min-height:40px;
 }
+
+#savedPostsModal{
+    display:none;
+    position:fixed;
+    top:0;
+    left:0;
+    width:100%;
+    height:100%;
+    background:rgba(0,0,0,0.6);
+    z-index:9999;
+}
+
+#savedPostsContent{
+    background:white;
+    width:70%;
+    max-width:700px;
+    margin:50px auto;
+    padding:20px;
+    border-radius:12px;
+    max-height:80vh;
+    overflow-y:auto;
+}
+
+.dark-mode #savedPostsContent{
+    background:#1f1f1f;
+    color:white;
+}
+
+#savedPostsCount{
+    position:absolute;
+    top:-8px;
+    right:-8px;
+    background:red;
+    color:white;
+    font-size:12px;
+    font-weight:bold;
+    border-radius:50%;
+    min-width:18px;
+    height:18px;
+    display:flex;
+    align-items:center;
+    justify-content:center;
+}
+
+/* ==========================
+   FRIEND REQUEST DROPDOWN
+========================== */
+
+#friendRequestsList{
+    padding:10px;
+}
+
+#friendRequestsList div{
+    color:black;
+}
+
+.dark-mode #friendRequestsModal{
+    background:#1e1e1e;
+    color:white;
+    border:1px solid #444;
+}
+
+.dark-mode #friendRequestsList div{
+    color:white !important;
+}
+
+#friendRequestsList{
+    padding:10px;
+}
+
+/* ==========================
+   FRIEND REQUEST DROPDOWN
+========================== */
+
+#friendRequestsModal{
+    display:none;
+    position:absolute;
+    top:65px;
+    right:130px;
+
+    width:260px;
+
+    background:white;
+    border-radius:10px;
+    border:1px solid #ddd;
+
+    box-shadow:0 5px 20px rgba(0,0,0,0.15);
+
+    z-index:9999;
+
+    max-height:300px;
+    overflow-y:auto;
+}
+
+#friendRequestsList{
+    padding:10px;
+}
+
+#friendRequestsList div{
+    padding:10px;
+    border-bottom:1px solid #ddd;
+    color:black;
+}
+
+#friendRequestsList div:last-child{
+    border-bottom:none;
+}
+
+.dark-mode #friendRequestsModal{
+    background:#1e1e1e;
+    color:white;
+    border:1px solid #444;
+}
+
+.dark-mode #friendRequestsList div{
+    color:white;
+    border-bottom:1px solid #333;
+}
+
+.friend-request-name{
+    color:black;
+}
+
+.dark-mode .friend-request-name{
+    color:white !important;
+}
+
+.post-image{
+    max-height:500px;
+    object-fit:cover;
+}

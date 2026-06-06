@@ -19,7 +19,35 @@
 
     <div style="position:relative;">
 
-        <button id="notificationBtn">
+    <button id="savedPostsBtn">
+        🔖
+    </button>
+
+    <span id="savedPostsCount">
+        0
+    </span>
+
+</div>
+
+<div style="position:relative;">
+
+    <button id="friendRequestsBtn">
+        👥
+
+        <span id="friendRequestCount">
+            0
+        </span>
+    </button>
+
+    <div id="friendRequestsModal">
+    <div id="friendRequestsList"></div>
+</div>
+
+</div>
+
+<div style="position:relative;">
+
+    <button id="notificationBtn">
 
             🔔
 
@@ -120,6 +148,19 @@
         <button id="uploadPicBtn">
             Upload Picture
         </button>
+
+        <br><br>
+
+<input
+    type="file"
+    id="coverPhotoInput"
+>
+
+<br><br>
+
+<button id="uploadCoverBtn">
+    Upload Cover
+</button>
 
         <br><br>
 
@@ -252,6 +293,14 @@
 <div id="userProfileModal">
 
     <div id="userProfileContent">
+
+    </div>
+
+</div>
+
+<div id="savedPostsModal">
+
+    <div id="savedPostsContent">
 
     </div>
 

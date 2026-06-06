@@ -11,7 +11,8 @@ from .models import (
     Like,
     Follow,
     Notification,
-    SavedPost
+    SavedPost,
+    FriendRequest
 )
 
 from .serializers import (
@@ -52,6 +53,10 @@ class ProfileViewSet(viewsets.ModelViewSet):
             profile.profile_picture = request.FILES[
                 'profile_picture'
             ]
+        if 'cover_photo' in request.FILES:
+            profile.cover_photo = request.FILES[
+                'cover_photo'
+                ]
 
         profile.save()
 
@@ -275,6 +280,11 @@ def user_profile(request, user_id):
         profile.profile_picture.url
         if profile.profile_picture
         else ""
+        ,
+"cover_photo":
+    profile.cover_photo.url
+    if profile.cover_photo
+    else ""
         })
 
     except User.DoesNotExist:
@@ -327,3 +337,103 @@ def toggle_save_post(request):
         return Response({
             "saved": True
         })
+    
+@api_view(["GET"])
+def saved_posts(request):
+
+    user_id = request.GET.get("user_id")
+
+    saved = SavedPost.objects.filter(
+        user_id=user_id
+    )
+
+    posts = [
+        item.post
+        for item in saved
+    ]
+
+    serializer = PostSerializer(
+        posts,
+        many=True,
+        context={"request": request}
+    )
+
+    return Response(serializer.data)
+
+@api_view(["POST"])
+def send_friend_request(request):
+
+    sender_id = request.data.get("sender_id")
+    receiver_id = request.data.get("receiver_id")
+
+    if sender_id == receiver_id:
+
+        return Response({
+            "message": "Cannot send request to yourself"
+        })
+
+    existing = FriendRequest.objects.filter(
+        sender_id=sender_id,
+        receiver_id=receiver_id
+    ).first()
+
+    if existing:
+
+        return Response({
+            "message": "Request already sent"
+        })
+
+    FriendRequest.objects.create(
+        sender_id=sender_id,
+        receiver_id=receiver_id
+    )
+
+    return Response({
+        "message": "Friend request sent"
+    })
+
+@api_view(["POST"])
+def accept_friend_request(request):
+
+    request_id = request.data.get("request_id")
+
+    try:
+
+        friend_request = FriendRequest.objects.get(
+            id=request_id
+        )
+
+        friend_request.accepted = True
+        friend_request.save()
+
+        return Response({
+            "message": "Friend request accepted"
+        })
+
+    except FriendRequest.DoesNotExist:
+
+        return Response({
+            "message": "Request not found"
+        })
+    
+@api_view(["GET"])
+def pending_friend_requests(request):
+
+    user_id = request.GET.get("user_id")
+
+    requests = FriendRequest.objects.filter(
+        receiver_id=user_id,
+        accepted=False
+    )
+
+    data = []
+
+    for req in requests:
+
+        data.append({
+            "id": req.id,
+            "sender_id": req.sender.id,
+            "sender_username": req.sender.username
+        })
+
+    return Response(data)

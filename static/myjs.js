@@ -45,8 +45,28 @@ document.addEventListener('DOMContentLoaded', () => {
     document.getElementById('uploadPicBtn')
         .addEventListener('click', uploadProfilePicture);
 
+    document.getElementById(
+    'uploadCoverBtn'
+).addEventListener(
+    'click',
+    uploadCoverPhoto
+);
+
     document.getElementById('notificationBtn')
     .addEventListener('click', loadNotifications);
+
+    document.getElementById('savedPostsBtn')
+    .addEventListener(
+        'click',
+        loadSavedPosts
+    );
+
+    document.getElementById(
+    'friendRequestsBtn'
+).addEventListener(
+    'click',
+    loadFriendRequests
+);
 
     // AUTO LOGIN AFTER REFRESH
 
@@ -70,6 +90,8 @@ document.addEventListener('DOMContentLoaded', () => {
         loadProfile();
         loadProfilePicture();
         loadNotificationCount();
+        loadSavedPostsCount();
+        loadFriendRequestCount();
 
     }
 
@@ -164,6 +186,8 @@ document.getElementById('profileBio')
         loadProfile();
         loadProfilePicture();
         loadNotificationCount();
+        loadSavedPostsCount();
+        loadFriendRequestCount();
 
         alert('Login successful!');
 
@@ -172,6 +196,21 @@ document.getElementById('profileBio')
         alert(JSON.stringify(data));
 
     }
+}
+
+async function getSavedPostIds(){
+
+    const response = await fetch(
+        `${API_BASE}/saved-posts/?user_id=${
+            localStorage.getItem('user_id')
+        }`
+    );
+
+    const posts = await response.json();
+
+    return posts.map(
+        post => post.id
+    );
 }
 
 async function loadFeed() {
@@ -183,6 +222,9 @@ async function loadFeed() {
         await response.json();
 
     allPosts = posts;
+
+    const savedPostIds =
+    await getSavedPostIds();
 
     const feed =
         document.getElementById('feed');
@@ -305,14 +347,23 @@ async function loadFeed() {
                 </button>
 
                 <button
+    id="save-btn-${post.id}"
     onclick="savePost(${post.id})"
     style="
         margin-left:10px;
-        background:#007bff;
+        background:${
+            savedPostIds.includes(post.id)
+            ? '#28a745'
+            : '#1877f2'
+        };
         color:white;
     "
 >
-    🔖 Save
+    ${
+        savedPostIds.includes(post.id)
+        ? '✅ Saved'
+        : '🔖 Save'
+    }
 </button>
 
                 ${parseInt(localStorage.getItem('user_id')) === post.user.id ? `
@@ -382,6 +433,13 @@ async function createPost() {
     const content =
         document.getElementById('postContent').value;
 
+        if(!content.trim()){
+
+    alert("Please enter some content");
+
+    return;
+}
+
     const image =
         document.getElementById('postImage').files[0];
 
@@ -407,6 +465,8 @@ async function createPost() {
 
     }
 
+    try{
+
     const response = await fetch(
         `${API_BASE}/posts/`,
         {
@@ -415,7 +475,43 @@ async function createPost() {
         }
     );
 
+    if(!response.ok){
+        throw new Error();
+    }
+
     const data = await response.json();
+
+    document.getElementById(
+        'postContent'
+    ).value = '';
+
+    document.getElementById(
+        'postImage'
+    ).value = '';
+
+    document.getElementById(
+        'imagePreview'
+    ).src = '';
+
+    document.getElementById(
+        'imagePreview'
+    ).style.display = 'none';
+
+    const scrollPos = window.scrollY;
+
+    await loadFeed();
+
+    window.scrollTo(0, scrollPos);
+
+}
+catch(error){
+
+    console.error(error);
+
+    alert(
+        "Failed to create post"
+    );
+}
     
     if (response.ok) {
 
@@ -490,6 +586,15 @@ async function addComment(postId) {
 
     const content =
         document.getElementById(`comment-${postId}`).value;
+
+        if(!content.trim()){
+
+    alert(
+        "Comment cannot be empty"
+    );
+
+    return;
+}
 
     const response = await fetch(
         `${API_BASE}/comments/`,
@@ -599,6 +704,18 @@ else {
 
 async function followUser(userId) {
 
+    if(
+    userId ==
+    localStorage.getItem('user_id')
+){
+
+    alert(
+        "You cannot follow yourself"
+    );
+
+    return;
+}
+
     const response = await fetch(
         `${API_BASE}/follows/`,
         {
@@ -651,7 +768,12 @@ async function editBio() {
         document.getElementById("profileBio").innerText
     );
 
-    if (bio === null) return;
+    if (
+    bio === null ||
+    !bio.trim()
+){
+    return;
+}
 
     const formData = new FormData();
 
@@ -690,16 +812,37 @@ async function editBio() {
     }
 }
 
-function searchPosts() {
+async function searchPosts(){
 
     const keyword =
-        document.getElementById('searchUser')
-        .value
+        document.getElementById(
+            'searchUser'
+        ).value
         .toLowerCase();
 
-    const filteredPosts =
-        allPosts.filter(post =>
-            post.user.username
+    if(keyword.trim() === ''){
+
+        loadFeed();
+        return;
+    }
+
+    const uniqueUsers = [];
+
+    allPosts.forEach(post => {
+
+        if(
+            !uniqueUsers.find(
+                user => user.id === post.user.id
+            )
+        ){
+
+            uniqueUsers.push(post.user);
+        }
+    });
+
+    const matchedUsers =
+        uniqueUsers.filter(user =>
+            user.username
                 .toLowerCase()
                 .includes(keyword)
         );
@@ -709,18 +852,85 @@ function searchPosts() {
 
     feed.innerHTML = '';
 
-    filteredPosts.forEach(post => {
+    for(const user of matchedUsers){
+
+        const profilePic =
+            await getProfilePicture(user.id);
 
         feed.innerHTML += `
-    <div class="post-card">
-                <h3>${post.user.username}</h3>
 
-                <p>${post.content}</p>
+            <div
+                style="
+                    background:white;
+                    padding:20px;
+                    margin:10px;
+                    border-radius:12px;
+                    text-align:center;
+                    box-shadow:0 2px 8px rgba(0,0,0,0.1);
+                "
+            >
 
-                <small>${formatDate(post.created_at)}</small>
+                <img
+                    src="${profilePic}"
+                    style="
+                        width:80px;
+                        height:80px;
+                        border-radius:50%;
+                        object-fit:cover;
+                        margin-bottom:10px;
+                    "
+                >
+
+                <h3>
+                    ${user.username}
+                </h3>
+
+                <p>
+                    Followers:
+                    ${user.followers_count}
+                </p>
+
+                <p>
+                    Following:
+                    ${user.following_count}
+                </p>
+
+                <button
+                    onclick="viewUserProfile(${user.id})"
+                >
+                    View Profile
+                </button>
+
+                <button
+                    onclick="followUser(${user.id})"
+                    style="margin-left:10px;"
+                >
+                    Follow
+                </button>
+
+                <button
+    onclick="sendFriendRequest(${user.id})"
+>
+    Add Friend
+</button>
+
             </div>
         `;
-    });
+    }
+
+    if(matchedUsers.length === 0){
+
+        feed.innerHTML = `
+            <div
+                style="
+                    text-align:center;
+                    padding:30px;
+                "
+            >
+                No users found
+            </div>
+        `;
+    }
 }
 
 async function uploadProfilePicture() {
@@ -772,6 +982,60 @@ async function uploadProfilePicture() {
 
         alert(JSON.stringify(data));
 
+    }
+}
+
+async function uploadCoverPhoto() {
+
+    const file =
+        document.getElementById(
+            'coverPhotoInput'
+        ).files[0];
+
+    if (!file) {
+
+        alert(
+            "Select a cover image first"
+        );
+
+        return;
+    }
+
+    const formData =
+        new FormData();
+
+    formData.append(
+        'user_id',
+        localStorage.getItem('user_id')
+    );
+
+    formData.append(
+        'cover_photo',
+        file
+    );
+
+    const response = await fetch(
+        `${API_BASE}/profiles/`,
+        {
+            method: 'POST',
+            body: formData
+        }
+    );
+
+    const data =
+        await response.json();
+
+    if(response.ok){
+
+        alert(
+            "Cover photo uploaded"
+        );
+
+    }else{
+
+        alert(
+            JSON.stringify(data)
+        );
     }
 }
 
@@ -956,8 +1220,6 @@ loadNotificationCount();
 
     notifications.forEach(notification => {
 
-        console.log(notification);
-
         const item = document.createElement("div");
 
 item.style.padding = "12px 15px";
@@ -1004,12 +1266,12 @@ async function viewUserProfile(userId){
         await response.json();
 
     const postsResponse =
-    await fetch(
-        `${API_BASE}/user-posts/${userId}/`
-    );
-    
+        await fetch(
+            `${API_BASE}/user-posts/${userId}/`
+        );
+
     const userPosts =
-    await postsResponse.json();
+        await postsResponse.json();
 
     const modal =
         document.getElementById("userProfileModal");
@@ -1019,7 +1281,26 @@ async function viewUserProfile(userId){
 
     content.innerHTML = `
 
-<div style="text-align:center">
+<div
+    style="
+        position:relative;
+        margin-bottom:80px;
+    "
+>
+
+    <img
+        src="${
+            user.cover_photo
+            ? 'http://127.0.0.1:8000' + user.cover_photo
+            : 'https://via.placeholder.com/700x220'
+        }"
+        style="
+            width:100%;
+            height:220px;
+            object-fit:cover;
+            border-radius:12px;
+        "
+    >
 
     <img
         src="http://127.0.0.1:8000${user.profile_picture}"
@@ -1028,14 +1309,25 @@ async function viewUserProfile(userId){
             height:120px;
             border-radius:50%;
             object-fit:cover;
-            border:4px solid #4267B2;
-            margin-bottom:15px;
+            border:4px solid white;
+            position:absolute;
+            left:50%;
+            bottom:-60px;
+            transform:translateX(-50%);
+            background:white;
         "
     >
 
-    <h2>${user.username}</h2>
-
 </div>
+
+<h2
+    style="
+        text-align:center;
+        margin-top:-30px;
+    "
+>
+    ${user.username}
+</h2>
 
 <hr>
 
@@ -1196,14 +1488,167 @@ async function savePost(postId){
 
     const data = await response.json();
 
+    const btn =
+        document.getElementById(
+            `save-btn-${postId}`
+        );
+
     if(data.saved){
+
+        btn.innerHTML = "✅ Saved";
 
         alert("Post saved");
 
     }else{
 
+        btn.innerHTML = "🔖 Save";
+
         alert("Post removed from saved posts");
     }
+
+    loadSavedPostsCount();
+}
+
+async function loadSavedPosts(){
+
+    const response = await fetch(
+        `${API_BASE}/saved-posts/?user_id=${
+            localStorage.getItem('user_id')
+        }`
+    );
+
+    const posts = await response.json();
+
+    const modal =
+        document.getElementById(
+            'savedPostsModal'
+        );
+
+    const content =
+        document.getElementById(
+            'savedPostsContent'
+        );
+
+    content.innerHTML = `
+
+        <h2 style="margin-bottom:10px;">
+            🔖 Saved Posts
+        </h2>
+
+        <p style="color:gray;">
+            Total Saved: ${posts.length}
+        </p>
+
+        <hr>
+
+        ${
+            posts.length
+            ?
+            posts.map(post => `
+
+                <div
+                    style="
+                        background:${
+                            document.body.classList.contains('dark-mode')
+                            ? '#2a2a2a'
+                            : '#f8f9fa'
+                        };
+                        padding:15px;
+                        margin-bottom:15px;
+                        border-radius:12px;
+                        border:1px solid #ddd;
+                    "
+                >
+
+                    <p
+                        style="
+                            color:gray;
+                            font-size:13px;
+                            margin-bottom:10px;
+                        "
+                    >
+                        📅 ${
+                            post.created_at
+                            ? formatDate(post.created_at)
+                            : ''
+                        }
+                    </p>
+
+                    <p
+                        style="
+                            margin-bottom:10px;
+                            line-height:1.5;
+                        "
+                    >
+                        ${post.content || ''}
+                    </p>
+
+                    ${
+                        post.image
+                        ?
+                        `
+                        <img
+                            src="${post.image}"
+                            onclick="openImage('${post.image}')"
+                            style="
+                                width:100%;
+                                max-width:400px;
+                                border-radius:12px;
+                                cursor:pointer;
+                                display:block;
+                                margin-bottom:10px;
+                            "
+                        >
+                        `
+                        :
+                        ''
+                    }
+
+                </div>
+
+            `).join('')
+            :
+            '<p>No saved posts yet</p>'
+        }
+
+        <br>
+
+        <button
+            onclick="
+                document.getElementById(
+                    'savedPostsModal'
+                ).style.display='none'
+            "
+            style="
+                background:#ff4d4f;
+                color:white;
+                border:none;
+                padding:10px 20px;
+                border-radius:8px;
+                cursor:pointer;
+            "
+        >
+            Close
+        </button>
+
+    `;
+
+    modal.style.display = 'block';
+}
+
+async function loadSavedPostsCount(){
+
+    const response = await fetch(
+        `${API_BASE}/saved-posts/?user_id=${
+            localStorage.getItem('user_id')
+        }`
+    );
+
+    const posts = await response.json();
+
+    document.getElementById(
+        'savedPostsCount'
+    ).innerText = posts.length;
 }
 
 // =========================
@@ -1256,3 +1701,161 @@ themeBtn.addEventListener(
         }
     }
 );
+
+async function sendFriendRequest(receiverId){
+
+    if(
+    receiverId ==
+    localStorage.getItem('user_id')
+){
+
+    alert(
+        "You cannot send a friend request to yourself"
+    );
+
+    return;
+}
+
+    const response = await fetch(
+        `${API_BASE}/send-friend-request/`,
+        {
+            method: "POST",
+            headers: {
+                "Content-Type": "application/json"
+            },
+            body: JSON.stringify({
+                sender_id:
+                    localStorage.getItem("user_id"),
+                receiver_id: receiverId
+            })
+        }
+    );
+
+    const data = await response.json();
+
+    alert(data.message);
+}
+
+async function loadFriendRequests(){
+
+    const response = await fetch(
+        `${API_BASE}/pending-friend-requests/?user_id=${
+            localStorage.getItem('user_id')
+        }`
+    );
+
+    const requests = await response.json();
+
+    const list = document.getElementById(
+        'friendRequestsList'
+    );
+
+    list.innerHTML = '';
+
+    if(requests.length === 0){
+
+        list.innerHTML = `
+            <div style="
+                padding:15px;
+                text-align:center;
+                color:#666;
+            ">
+                No friend requests
+            </div>
+        `;
+
+    }else{
+
+        requests.forEach(req => {
+
+            list.innerHTML += `
+                <div
+    style="
+        border:1px solid #ddd;
+        padding:10px;
+        margin-bottom:10px;
+        border-radius:8px;
+    "
+>
+
+    <div
+    style="
+        font-size:18px;
+        font-weight:bold;
+        margin-bottom:10px;
+        color:red !important;
+        background:yellow !important;
+        display:block !important;
+    "
+>
+    ${req.sender_username}
+</div>
+
+                    <button
+                        onclick="acceptFriendRequest(${req.id})"
+                        style="
+                            background:#1877f2;
+                            color:white;
+                            border:none;
+                            padding:8px 15px;
+                            border-radius:6px;
+                            cursor:pointer;
+                        "
+                    >
+                        Accept
+                    </button>
+
+                </div>
+            `;
+        });
+    }
+
+    const dropdown =
+        document.getElementById(
+            'friendRequestsModal'
+        );
+
+    dropdown.style.display =
+        dropdown.style.display === 'block'
+            ? 'none'
+            : 'block';
+}
+
+async function acceptFriendRequest(requestId){
+
+    const response = await fetch(
+        `${API_BASE}/accept-friend-request/`,
+        {
+            method:'POST',
+            headers:{
+                'Content-Type':'application/json'
+            },
+            body: JSON.stringify({
+                request_id: requestId
+            })
+        }
+    );
+
+    const data =
+        await response.json();
+
+    alert(data.message);
+    loadFriendRequests();
+    loadFriendRequestCount();
+}
+
+async function loadFriendRequestCount(){
+
+    const response = await fetch(
+        `${API_BASE}/pending-friend-requests/?user_id=${
+            localStorage.getItem('user_id')
+        }`
+    );
+
+    const requests =
+        await response.json();
+
+    document.getElementById(
+        'friendRequestCount'
+    ).textContent = requests.length;
+}

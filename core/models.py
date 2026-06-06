@@ -17,6 +17,12 @@ class Profile(models.Model):
         null=True
     )
 
+    cover_photo = models.ImageField(
+    upload_to='cover_photos/',
+    blank=True,
+    null=True
+    )
+
     def __str__(self):
         return self.user.username
 
@@ -128,3 +134,25 @@ class SavedPost(models.Model):
 
     def __str__(self):
         return f"{self.user.username} saved {self.post.id}"
+    
+class FriendRequest(models.Model):
+
+    sender = models.ForeignKey(
+        User,
+        on_delete=models.CASCADE,
+        related_name='sent_requests'
+    )
+
+    receiver = models.ForeignKey(
+        User,
+        on_delete=models.CASCADE,
+        related_name='received_requests'
+    )
+
+    accepted = models.BooleanField(
+        default=False
+    )
+
+    created_at = models.DateTimeField(
+        auto_now_add=True
+    )

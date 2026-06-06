@@ -14,7 +14,11 @@ from .views import (
     mark_notifications_read,
     user_profile,
     user_posts,
-    toggle_save_post
+    toggle_save_post,
+    saved_posts,
+    send_friend_request,
+    accept_friend_request,
+    pending_friend_requests
 )
 
 router = DefaultRouter()
@@ -61,6 +65,22 @@ urlpatterns = [
         'api/save-post/',
         toggle_save_post
     ),
+
+    path(
+    'api/saved-posts/',
+    saved_posts),
+
+    path(
+    'api/send-friend-request/',
+    send_friend_request),
+
+    path(
+    'api/accept-friend-request/',
+    accept_friend_request),
+
+    path(
+    'api/pending-friend-requests/',
+    pending_friend_requests),
 
     path('', home, name='home'),
 
