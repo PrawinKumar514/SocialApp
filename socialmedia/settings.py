@@ -23,9 +23,11 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 SECRET_KEY = 'django-insecure-6z@$-j=)t4kn@z@+r54um6o&i0m4cxdaj)#&r748e$x0he3@+k'
 
 # SECURITY WARNING: don't run with debug turned on in production!
-DEBUG = True
+DEBUG = False
 
-ALLOWED_HOSTS = ['*']
+ALLOWED_HOSTS = [
+    'socialmedia-app-23hp.onrender.com',
+]
 
 
 # Application definition
@@ -132,6 +134,7 @@ STATICFILES_STORAGE = "whitenoise.storage.CompressedManifestStaticFilesStorage"
 
 CORS_ALLOW_ALL_ORIGINS = True
 CSRF_TRUSTED_ORIGINS = [
+    "https://socialmedia-app-23hp.onrender.com",
     "http://127.0.0.1:8000",
     "http://localhost:8000",
 ]
