@@ -1,0 +1,6 @@
+services:
+  - type: web
+    name: socialmedia-app
+    env: python
+    buildCommand: "./build.sh"
+    startCommand: "gunicorn socialmedia.wsgi:application"
