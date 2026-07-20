@@ -1,18 +1,21 @@
 # 🌐 SocialApp – Full-Stack Social Media Platform
 
-Django • Django REST Framework • JavaScript • Cloudinary • PostgreSQL
-
----
+![Django](https://img.shields.io/badge/Django-6.0-092E20?style=flat&logo=django&logoColor=white)
+![Django REST Framework](https://img.shields.io/badge/DRF-REST_API-A30000?style=flat&logo=django&logoColor=white)
+![Python](https://img.shields.io/badge/Python-3.x-3776AB?style=flat&logo=python&logoColor=white)
+![JavaScript](https://img.shields.io/badge/JavaScript-Frontend-F7DF1E?style=flat&logo=javascript&logoColor=black)
+![Cloudinary](https://img.shields.io/badge/Cloudinary-Media_Storage-3448C5?style=flat&logo=cloudinary&logoColor=white)
+![Render](https://img.shields.io/badge/Render-Deployment-46E3B7?style=flat&logo=render&logoColor=black)
 
 ## 📖 Project Overview
 
-SocialApp is a full-stack social networking web application designed to provide users with an interactive platform to connect, share content, and engage with other users.
+**SocialApp** is a full-stack social networking web application designed to provide users with an interactive platform to connect, share content, and engage with other users.
 
 The application allows users to create and manage profiles, publish posts with images, like and comment on posts, follow other users, send friend requests, save posts, receive notifications, and discover users through search functionality.
 
-The platform is built using Django and Django REST Framework for backend development, with HTML, CSS, and JavaScript powering the frontend experience. Cloudinary is integrated for persistent cloud-based media storage, while the application is deployed on Render.
+The platform is built using **Django** and **Django REST Framework** for backend development, with **HTML, CSS, and JavaScript** powering the frontend experience. **Cloudinary** is integrated for persistent cloud-based media storage, while the application is deployed on **Render**.
 
-This project was developed to gain hands-on experience with full-stack web development, REST API development, authentication, database management, cloud media storage, frontend-backend integration, and production deployment.
+This project was developed to gain hands-on experience with **full-stack web development, REST API development, authentication, database management, cloud media storage, frontend-backend integration, and production deployment**.
 
 ---
 
@@ -20,8 +23,7 @@ This project was developed to gain hands-on experience with full-stack web devel
 
 Experience SocialApp in action:
 
-🔗 **Live Application:**  
-https://socialmedia-app-23hp.onrender.com
+🔗 **Live Application:** https://socialmedia-app-23hp.onrender.com
 
 > **Note:** The application is hosted on Render's free tier. The server may take some time to wake up after a period of inactivity.
 
@@ -30,12 +32,11 @@ https://socialmedia-app-23hp.onrender.com
 - User Registration & Login
 - User Profile Management
 - Profile Picture & Cover Photo Upload
-- Post Creation
-- Image Posts
+- Post Creation & Image Upload
 - Like & Comment System
 - Save Posts
 - Follow & Unfollow Users
-- Friend Requests
+- Friend Request System
 - Notifications
 - User Search
 - Dark Mode
@@ -479,9 +480,11 @@ Through this project, I gained practical experience with:
 
 Aspiring Full Stack Developer
 
-GitHub: https://github.com/PrawinKumar514
+🌐 Portfolio: https://prawin-portfolio-website.vercel.app/
 
-LinkedIn: https://www.linkedin.com/in/prawin-kumar-974a2334b
+💻 GitHub: https://github.com/PrawinKumar514
+
+💼 LinkedIn: https://www.linkedin.com/in/prawin-kumar-974a2334b
 
 ---
 
