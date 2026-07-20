@@ -1289,11 +1289,7 @@ async function viewUserProfile(userId){
 >
 
     <img
-        src="${
-            user.cover_photo
-            ? 'http://127.0.0.1:8000' + user.cover_photo
-            : 'https://via.placeholder.com/700x220'
-        }"
+        src="${user.cover_photo ? user.cover_photo : 'https://via.placeholder.com/700x220'}"
         style="
             width:100%;
             height:220px;
@@ -1303,7 +1299,7 @@ async function viewUserProfile(userId){
     >
 
     <img
-        src="http://127.0.0.1:8000${user.profile_picture}"
+        src="${user.profile_picture}"
         style="
             width:120px;
             height:120px;
